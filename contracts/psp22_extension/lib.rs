@@ -69,6 +69,23 @@ pub trait Psp22Extension {
         spender: DefaultAccountId,
         value: DefaultBalance,
     ) -> Result<()>;
+
+    // PSP22 mint
+    #[ink(extension = 0x6bba)]
+    fn mint(
+        asset_id: u32,
+        to: DefaultAccountId,
+        value: DefaultBalance,
+    ) -> Result<()>;
+
+    // PSP22 mint
+    #[ink(extension = 0x9e55)]
+    fn burn(
+        asset_id: u32,
+        from: DefaultAccountId,
+        value: DefaultBalance,
+    ) -> Result<()>;
+    
 }
 
 #[derive(scale::Encode, scale::Decode)]
@@ -171,6 +188,12 @@ pub mod psp22 {
 
         #[ink(message)]
         fn token_decimals(&self) -> Result<u8>;
+
+        #[ink(message)]
+        fn mint(&mut self, to: DefaultAccountId, value: DefaultBalance) -> Result<()>;
+
+        #[ink(message)]
+        fn burn(&mut self, from: DefaultAccountId, value: DefaultBalance) -> Result<()>;
     }
 }
 
@@ -184,7 +207,6 @@ mod token {
         DefaultAccountId,
         DefaultBalance,
     };
-    use ink::codegen::Env; 
     #[ink(storage)]
     #[derive(Default)]
     pub struct MyPSP22 {
@@ -284,6 +306,16 @@ mod token {
         #[ink(message)]
         fn token_decimals(&self) -> Result<u8> {
             self.env().extension().token_decimals(self.asset_id)
+        }
+
+        #[ink(message)]
+        fn mint(&mut self, to: DefaultAccountId, value: DefaultBalance) -> Result<()> {
+            self.env().extension().mint(self.asset_id, to, value)
+        }
+
+        #[ink(message)]
+        fn burn(&mut self, from: DefaultAccountId, value: DefaultBalance) -> Result<()> {
+            self.env().extension().burn(self.asset_id, from, value)
         }
     }
     
